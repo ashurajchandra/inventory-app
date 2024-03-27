@@ -1,0 +1,25 @@
+.widget-container{
+    width: 320px;
+    height: 170px;
+    border-radius: 10px;
+    background-color: #196c2e;
+    display: flex;
+    // flex-direction: column;
+
+    &-icon{
+    margin-left: 10%;
+    margin-top: 5%;
+    margin-right: 5%;
+    }
+
+    &-metaInfo{
+      margin-top: 1%;
+        &-label{
+
+        }
+
+        &-value{
+            font-size: 25px;
+        }
+    }
+}

@@ -1,0 +1,22 @@
+.header{
+    //background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color-default);
+    height: 60px;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    &-container{
+        width: 30%;
+        padding: 15px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        &-logout{
+            color: var(--text-primary-color);
+        }
+    }
+
+   
+}
