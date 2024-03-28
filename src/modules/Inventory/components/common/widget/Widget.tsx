@@ -3,22 +3,24 @@ import './Widget.scss';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 
 interface Props{
-    WidgetIcon?:any;
-    widgetTitle?: string;
-    widgetValue?:number
+    WidgetIcon:any;
+    widgetTitle: string;
+    widgetValue:string
 }
-const Widget:React.FC<Props> =(props)=> {
+const Widget:React.FC<Props> =({WidgetIcon,widgetTitle,widgetValue})=> {
   return (
     <div className='widget-container'>
      
-     <div className='widget-container-icon'>
-         <LogoutOutlinedIcon/>
+    <div className='widget-container-wrapper'>
+    <div className='widget-container-wrapper-icon'>
+         <WidgetIcon/>
         
      </div>
-     <div className='widget-container-metaInfo'>
-     <p className='widget-container-metaInfo-label'>Total Product value</p>
-     <p className='widget-container-metaInfo-value'>2</p>
+     <div className='widget-container-wrapper-metaInfo'>
+     <p className='widget-container-wrapper-metaInfo-label'>{widgetTitle}</p>
+     <p className='widget-container-wrapper-metaInfo-value'>{widgetValue}</p>
      </div>
+    </div>
     
 
 

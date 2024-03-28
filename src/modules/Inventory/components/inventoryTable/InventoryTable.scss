@@ -1,0 +1,11 @@
+.table-container{
+    background-color: #161b22 !important;
+    border-radius: 15px !important;
+
+    &-cell{
+    background-color: var(--bg-primary);
+    color: 	#e7dd4d;
+    padding: 10px;
+    border-radius: 5px;
+    }
+}
