@@ -1,5 +1,5 @@
 
-import {Action,InventoryData,InWidgetData } from './models';
+import {Action,InventoryData,WidgetData } from './models';
 
 export const ISADMIN = "ISADMIN";
 export const INVENTORYDATA = "INVENTORYDATA";
@@ -21,7 +21,7 @@ export const setInventoryData = (payload:InventoryData[]):Action=>{
     }
 }
 
-export const setWidgetData = (payload:InWidgetData):Action=>{
+export const setWidgetData = (payload:WidgetData):Action=>{
     return {
         type:WIDGETDATA,
         payload

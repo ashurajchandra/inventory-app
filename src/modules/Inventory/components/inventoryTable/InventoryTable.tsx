@@ -8,6 +8,10 @@ import {
   TableRow,
   Paper,
   styled,
+  Popover,
+  TextField,
+  Button,
+  Grid,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -18,6 +22,7 @@ import { width } from "@mui/system";
 import "./InventoryTable.scss";
 import { getInventoryData } from "../../services/apis";
 import { InventoryContext } from "../../../context/context";
+import { setWidgetData } from "../../../context/action";
 
 const StyledTableRow = styled(TableRow)({
   "&:last-child td": {
@@ -26,10 +31,14 @@ const StyledTableRow = styled(TableRow)({
   borderBottom: "1px solid #30363db3",
 });
 
-const RedHeaderTableCell = styled(TableCell)({
-  backgroundColor: "red",
-  color: "yellow",
-});
+const calculateCenterPosition = () => {
+  const { innerHeight, innerWidth } = window;
+  return {
+    top: innerHeight / 2,
+    left: innerWidth / 2,
+  };
+};
+
 interface InventoryDataEnhanced {
   category: string;
   name: string;
@@ -41,9 +50,16 @@ interface InventoryDataEnhanced {
 const InventoryTable: React.FC = () => {
   const { state, dispatch } = useContext(InventoryContext);
   const [columnHeader, setColumnHeader] = useState<HeadCells[]>(headCells);
-  const [disabledRow, setDisabledRow] = useState<boolean>(false);
   const [inventoryData, setInventoryData] = useState<InventoryDataEnhanced[]>(
     []
+  );
+  const [editedItemIndex, setEditedItemIndex] = useState<number>(-1);
+
+  const [editPopoverAnchor, setEditPopoverAnchor] =
+    useState<HTMLElement | null>(null);
+
+  const [editedItem, setEditedItem] = useState<InventoryDataEnhanced | null>(
+    null
   );
 
   useEffect(() => {
@@ -79,15 +95,106 @@ const InventoryTable: React.FC = () => {
     if (item.isDisabled) {
       return;
     }
+    setEditedItemIndex(index);
+    setEditedItem(item);
+    setEditPopoverAnchor(document.getElementById(`edit-button-${index}`));
   };
+
+  const handleEditSubmit = () => {
+    if (editedItem) {
+      const updatedData = inventoryData.map((item) => {
+        if (item.name === editedItem.name) {
+          return editedItem;
+        }
+        return item;
+      });
+
+      const currentWidgetData = state.widgetData;
+      let categoryCount = -1;
+      currentWidgetData.categories.forEach((item) => {
+        if (item == editedItem.category) {
+          categoryCount++;
+        }
+      });
+      const currentEditedItem = inventoryData[editedItemIndex];
+      const updatedValue =
+        parseInt(currentEditedItem.value.replace("$", "")) -
+        parseInt(editedItem.value.replace("$", ""));
+      const updatedWidget = {
+        ...state.widgetData,
+        totalProduct: currentWidgetData.totalProduct,
+        totalStoreValue:
+          currentWidgetData.totalStoreValue +
+          parseInt(editedItem.value.replace("$", "")),
+        numberOfCategory:
+          categoryCount > 0
+            ? currentWidgetData.numberOfCategory
+            : currentWidgetData.numberOfCategory + 1,
+        outOfStock:
+          editedItem.quantity == 0
+            ? currentWidgetData.outOfStock - 1
+            : currentWidgetData.outOfStock,
+      };
+      dispatch(setWidgetData(updatedWidget));
+      setInventoryData(updatedData);
+      setEditPopoverAnchor(null);
+      setEditedItem(null);
+    }
+  };
+
+  const handleSaveChanges = () => {
+    handleEditSubmit();
+    handleClosePopover();
+  };
+
+  const handleCancelChanges = () => {
+    handleClosePopover();
+  };
+  const handleClosePopover = () => {
+    setEditPopoverAnchor(null);
+  };
+
   const handleDelete = (data: InventoryDataEnhanced, index: number) => {
     if (!state.isAdmin) {
       return;
     }
     const deleteItem = inventoryData[index];
+    const currentWidgetData = state.widgetData;
+    let categoryCount = -1;
+    currentWidgetData.categories.forEach((item) => {
+      if (item == data.category) {
+        categoryCount++;
+      }
+    });
+    const updatedWidget = {
+      ...state.widgetData,
+      totalProduct: currentWidgetData.totalProduct - 1,
+      totalStoreValue:
+        currentWidgetData.totalStoreValue -
+        parseInt(data.value.replace("$", "")),
+      numberOfCategory:
+        categoryCount > 1
+          ? currentWidgetData.numberOfCategory
+          : currentWidgetData.numberOfCategory - 1,
+      outOfStock:
+        data.quantity == 0
+          ? currentWidgetData.outOfStock - 1
+          : currentWidgetData.outOfStock,
+    };
+    dispatch(setWidgetData(updatedWidget));
     const filterItems = inventoryData.filter((item) => item.name != data.name);
     setInventoryData(filterItems);
   };
+
+  const handleEditInputChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    field: keyof InventoryDataEnhanced
+  ) => {
+    if (editedItem) {
+      setEditedItem({ ...editedItem, [field]: event.target.value });
+    }
+  };
+
   return (
     <>
       <TableContainer
@@ -134,6 +241,7 @@ const InventoryTable: React.FC = () => {
                   className='table-container-action'>
                   <div className='table-container-action-items'>
                     <EditIcon
+                      id={`edit-button-${index}`}
                       onClick={() => handleEdit(data, index)}
                       className={
                         state.isAdmin && !data.isDisabled
@@ -176,6 +284,105 @@ const InventoryTable: React.FC = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Popover
+        open={!!editPopoverAnchor}
+        anchorEl={editPopoverAnchor}
+        onClose={handleClosePopover}
+        anchorReference='anchorPosition'
+        anchorPosition={calculateCenterPosition()}
+        transformOrigin={{
+          vertical: "center",
+          horizontal: "center",
+        }}
+        PaperProps={{ sx: { backgroundColor: "#f1e199" } }}>
+        <Grid
+          container
+          direction='column'
+          spacing={2}
+          style={{ padding: "20px" }}>
+          <Grid container item spacing={2}>
+            <Grid item xs={6}>
+              <TextField
+                disabled
+                label='Name'
+                value={editedItem?.name || ""}
+                onChange={(e) => handleEditInputChange(e, "name")}
+                fullWidth
+                variant='outlined'
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                label='Category'
+                value={editedItem?.category || ""}
+                onChange={(e) => handleEditInputChange(e, "category")}
+                fullWidth
+                variant='outlined'
+                // InputProps={{
+                //   sx: {
+                //     backgroundColor: '#848d97',
+                //     '&:focus': {
+                //       backgroundColor: '#1f6feb', // Adjusted focus mode background color
+                //       '& .MuiOutlinedInput-notchedOutline': {
+                //         borderColor: '#1f6feb', // Adjusted focus mode border color
+                //       },
+                //     },
+                //   },
+                // }}
+              />
+            </Grid>
+          </Grid>
+          <Grid container item spacing={2}>
+            <Grid item xs={6}>
+              <TextField
+                label='Price'
+                value={editedItem?.price || ""}
+                onChange={(e) => handleEditInputChange(e, "price")}
+                fullWidth
+                variant='outlined'
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                label='Quantity'
+                value={editedItem?.quantity || ""}
+                onChange={(e) => handleEditInputChange(e, "quantity")}
+                fullWidth
+                variant='outlined'
+              />
+            </Grid>
+          </Grid>
+          <Grid container item spacing={2}>
+            <Grid item xs={6}>
+              <TextField
+                label='Value'
+                value={editedItem?.value || ""}
+                onChange={(e) => handleEditInputChange(e, "value")}
+                fullWidth
+                variant='outlined'
+              />
+            </Grid>
+          </Grid>
+          <Grid item container justifyContent='flex-end'>
+            <Button
+              variant='contained'
+              color='primary'
+              onClick={handleSaveChanges}
+              sx={{ backgroundColor: "#848d97" }}>
+              Save
+            </Button>
+            <Button
+              variant='outlined'
+              color='primary'
+              onClick={handleCancelChanges}
+              style={{ marginLeft: "10px" }}
+              sx={{ color: "red" }}>
+              Cancel
+            </Button>
+          </Grid>
+        </Grid>
+      </Popover>
     </>
   );
 };

@@ -1,4 +1,4 @@
-import{Action,InWidgetData,InventoryData} from './models';
+import{Action,WidgetData,InventoryData} from './models';
 import{
     ISADMIN,
     INVENTORYDATA,
@@ -8,7 +8,7 @@ import{
 
 export interface InventoryState{
     isAdmin:boolean;
-    widgetData:InWidgetData;
+    widgetData:WidgetData;
     inventoryData:InventoryData[]
 }
 
@@ -18,7 +18,9 @@ export const initialInventoryState: InventoryState = {
     widgetData:{ totalProduct: 0,
         totalStoreValue: 0,
         outOfStock: 0,
-        numberOfCategory: 0},
+        numberOfCategory: 0,
+        categories:[]
+    },
     inventoryData: []
 }
 

@@ -9,7 +9,12 @@ export interface InventoryData {
   quantity: number;
   value: string;
 }
-export interface InWidgetData {
+
+interface Category{
+  category:string
+}
+export interface WidgetData {
+  categories:string[]
   totalProduct: number;
   totalStoreValue: number;
   outOfStock: number;

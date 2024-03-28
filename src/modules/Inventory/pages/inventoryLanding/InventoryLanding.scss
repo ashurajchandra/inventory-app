@@ -1,14 +1,14 @@
-.inventory-container{
-    padding: 2%;
-    color: var(--text-primary-color);
+.inventory-container {
+  padding: 2%;
+  color: var(--text-primary-color);
 
-    &-widget{
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
+  &-widget {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
-    &-table{
-        margin-top: 50px;
-    }
+  &-table {
+    margin-top: 50px;
+  }
 }

@@ -21,7 +21,7 @@
     cursor: pointer;
     transition: background-color 0.3s;
 
-    &.toggle-container-dark {
+    &.toggle-container-user {
       background-color: #333;
 
       .toggle-button {
@@ -29,7 +29,7 @@
       }
     }
 
-    &.toggle-container-light {
+    &.toggle-container-admin {
       .toggle-button {
         transform: translateX(0);
       }

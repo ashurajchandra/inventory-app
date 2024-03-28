@@ -5,7 +5,6 @@ import './ToggleButton.scss';
 
 const ToggleButton: React.FC = () => {
   const {state, dispatch} = useContext(InventoryContext)
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
 
   const toggleMode = () => {
     dispatch(setIsAdmin(!state.isAdmin))
@@ -14,7 +13,7 @@ const ToggleButton: React.FC = () => {
   return (
     <div className='toggle'>
       <p>admin</p>
-     <div className={`toggle-container ${state.isAdmin ? 'toggle-container-light' : 'toggle-container-dark'}`} onClick={toggleMode}>
+     <div className={`toggle-container ${state.isAdmin ? 'toggle-container-admin' : 'toggle-container-user'}`} onClick={toggleMode}>
       <div className="toggle-button"></div>
     </div>
     <p>user</p>
