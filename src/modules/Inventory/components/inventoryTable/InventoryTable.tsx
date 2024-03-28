@@ -17,10 +17,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import EditIcon from "@mui/icons-material/Edit";
-import { HeadCells, headCells, InventoryData } from "../../utils/data-utils";
-import { width } from "@mui/system";
+import { HeadCells, headCells } from "../../utils/data-utils";
 import "./InventoryTable.scss";
-import { getInventoryData } from "../../services/apis";
 import { InventoryContext } from "../../../context/context";
 import { setWidgetData } from "../../../context/action";
 
@@ -76,9 +74,10 @@ const InventoryTable: React.FC = () => {
     if (!state.isAdmin) {
       return;
     }
+
     const data = [...inventoryData];
     const updatedData = data.map((currentData) => {
-      if (currentData.name == item.name) {
+      if (currentData.name === item.name) {
         return {
           ...currentData,
           isDisabled: !item.isDisabled,
@@ -87,6 +86,56 @@ const InventoryTable: React.FC = () => {
       return currentData;
     });
     setInventoryData(updatedData);
+
+    const currentDisabledItemIndex = inventoryData.findIndex(
+      (data) => data.name === item.name
+    );
+    if (currentDisabledItemIndex !== -1) {
+      const currentItem = inventoryData[currentDisabledItemIndex];
+
+      const widgetData = state.widgetData;
+      let categoryCount = -1;
+      widgetData.categories.forEach((categoryItem) => {
+        if (categoryItem === currentItem.category) {
+          categoryCount++;
+        }
+      });
+      if (!currentItem.isDisabled) {
+        const updatedWidget = {
+          ...widgetData,
+          totalProduct: widgetData.totalProduct - 1,
+          totalStoreValue:
+            widgetData.totalStoreValue -
+            parseInt(currentItem.value.replace("$", "")),
+          outOfStock:
+            currentItem.quantity === 0
+              ? widgetData.outOfStock - 1
+              : widgetData.outOfStock,
+          numberOfCategory:
+            categoryCount > 1
+              ? widgetData.numberOfCategory
+              : widgetData.numberOfCategory - 1,
+        };
+        dispatch(setWidgetData(updatedWidget));
+      } else {
+        const updatedWidget = {
+          ...widgetData,
+          totalProduct: widgetData.totalProduct + 1,
+          totalStoreValue:
+            widgetData.totalStoreValue +
+            parseInt(currentItem.value.replace("$", "")),
+          outOfStock:
+            currentItem.quantity === 0
+              ? widgetData.outOfStock + 1
+              : widgetData.outOfStock,
+          numberOfCategory:
+            categoryCount > 1
+              ? widgetData.numberOfCategory
+              : widgetData.numberOfCategory + 1,
+        };
+        dispatch(setWidgetData(updatedWidget));
+      }
+    }
   };
   const handleEdit = (item: InventoryDataEnhanced, index: number) => {
     if (!state.isAdmin) {
@@ -112,26 +161,24 @@ const InventoryTable: React.FC = () => {
       const currentWidgetData = state.widgetData;
       let categoryCount = -1;
       currentWidgetData.categories.forEach((item) => {
-        if (item == editedItem.category) {
+        if (item === editedItem.category) {
           categoryCount++;
         }
       });
       const currentEditedItem = inventoryData[editedItemIndex];
       const updatedValue =
-        parseInt(currentEditedItem.value.replace("$", "")) -
-        parseInt(editedItem.value.replace("$", ""));
+        parseInt(editedItem.value.replace("$", "")) -
+        parseInt(currentEditedItem.value.replace("$", ""));
       const updatedWidget = {
         ...state.widgetData,
         totalProduct: currentWidgetData.totalProduct,
-        totalStoreValue:
-          currentWidgetData.totalStoreValue +
-          parseInt(editedItem.value.replace("$", "")),
+        totalStoreValue: currentWidgetData.totalStoreValue + updatedValue,
         numberOfCategory:
           categoryCount > 0
             ? currentWidgetData.numberOfCategory
             : currentWidgetData.numberOfCategory + 1,
         outOfStock:
-          editedItem.quantity == 0
+          editedItem.quantity === 0
             ? currentWidgetData.outOfStock - 1
             : currentWidgetData.outOfStock,
       };
@@ -154,15 +201,11 @@ const InventoryTable: React.FC = () => {
     setEditPopoverAnchor(null);
   };
 
-  const handleDelete = (data: InventoryDataEnhanced, index: number) => {
-    if (!state.isAdmin) {
-      return;
-    }
-    const deleteItem = inventoryData[index];
+  const updateWidget = (data: InventoryDataEnhanced) => {
     const currentWidgetData = state.widgetData;
     let categoryCount = -1;
     currentWidgetData.categories.forEach((item) => {
-      if (item == data.category) {
+      if (item === data.category) {
         categoryCount++;
       }
     });
@@ -177,12 +220,22 @@ const InventoryTable: React.FC = () => {
           ? currentWidgetData.numberOfCategory
           : currentWidgetData.numberOfCategory - 1,
       outOfStock:
-        data.quantity == 0
+        data.quantity === 0
           ? currentWidgetData.outOfStock - 1
           : currentWidgetData.outOfStock,
     };
     dispatch(setWidgetData(updatedWidget));
-    const filterItems = inventoryData.filter((item) => item.name != data.name);
+  };
+
+  const handleDelete = (data: InventoryDataEnhanced, index: number) => {
+    if (!state.isAdmin) {
+      return;
+    }
+    const deleteItem = inventoryData[index];
+    if (!data.isDisabled) {
+      updateWidget(data);
+    }
+    const filterItems = inventoryData.filter((item) => item.name !== data.name);
     setInventoryData(filterItems);
   };
 
@@ -319,17 +372,6 @@ const InventoryTable: React.FC = () => {
                 onChange={(e) => handleEditInputChange(e, "category")}
                 fullWidth
                 variant='outlined'
-                // InputProps={{
-                //   sx: {
-                //     backgroundColor: '#848d97',
-                //     '&:focus': {
-                //       backgroundColor: '#1f6feb', // Adjusted focus mode background color
-                //       '& .MuiOutlinedInput-notchedOutline': {
-                //         borderColor: '#1f6feb', // Adjusted focus mode border color
-                //       },
-                //     },
-                //   },
-                // }}
               />
             </Grid>
           </Grid>

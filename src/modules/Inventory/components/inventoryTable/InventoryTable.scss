@@ -1,25 +1,25 @@
-.table-container{
-    background-color: #161b22 !important;
-    border-radius: 15px !important;
+.table-container {
+  background-color: #161b22 !important;
+  border-radius: 15px !important;
 
-    &-cell{
+  &-cell {
     background-color: var(--bg-primary);
-    color: 	var(--yellow-color);
+    color: var(--yellow-color);
     padding: 10px;
     border-radius: 5px;
-    }
-    &-action{
-      &-items{
-        &-edit{
-            color: green;
-           } 
-           &-visible{
-            color: purple ;
-           } 
-    
-           &-delete{
-            color:red ;
-           } 
+  }
+  &-action {
+    &-items {
+      &-edit {
+        color: green;
+      }
+      &-visible {
+        color: purple;
+      }
+
+      &-delete {
+        color: red;
       }
     }
+  }
 }

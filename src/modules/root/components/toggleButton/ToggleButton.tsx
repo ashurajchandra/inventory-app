@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext} from 'react';
 import { setIsAdmin } from '../../../context/action';
 import { InventoryContext } from '../../../context/context';
 import './ToggleButton.scss'; 

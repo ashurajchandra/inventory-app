@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import {useEffect, useContext } from "react";
 import Widget from "../../components/common/widget/Widget";
 import "./InventoryLanding.scss";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -19,7 +19,7 @@ const Inventory: React.FC = () => {
     const getData = async () => {
       try {
         const resp = await getInventoryData();
-        if (resp != undefined && resp.data.length > 0) {
+        if (resp !== undefined && resp.data.length > 0) {
           let widgetData = {
             outOfStock: 0,
             numberOfCategory: 0,
@@ -66,7 +66,7 @@ const Inventory: React.FC = () => {
         <Widget
           WidgetIcon={CurrencyExchangeIcon}
           widgetTitle={"Total Store value"}
-          widgetValue={state.widgetData.totalStoreValue}
+          widgetValue={`$ ${state.widgetData.totalStoreValue}`}
         />
         <Widget
           WidgetIcon={ProductionQuantityLimitsIcon}
