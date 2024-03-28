@@ -4,8 +4,22 @@
 
     &-cell{
     background-color: var(--bg-primary);
-    color: 	#e7dd4d;
+    color: 	var(--yellow-color);
     padding: 10px;
     border-radius: 5px;
+    }
+    &-action{
+      &-items{
+        &-edit{
+            color: green;
+           } 
+           &-visible{
+            color: purple ;
+           } 
+    
+           &-delete{
+            color:red ;
+           } 
+      }
     }
 }

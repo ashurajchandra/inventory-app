@@ -3,6 +3,14 @@ export interface HeadCells {
   label: string;
 }
 
+export interface InventoryData{
+category:string;
+name:string;
+price:string;
+quantity:number
+value:string
+}
+
 export const headCells: HeadCells[] = [
   {
     label: "Name",

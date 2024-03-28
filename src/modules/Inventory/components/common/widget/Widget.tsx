@@ -5,7 +5,7 @@ import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 interface Props{
     WidgetIcon:any;
     widgetTitle: string;
-    widgetValue:string
+    widgetValue:number|string
 }
 const Widget:React.FC<Props> =({WidgetIcon,widgetTitle,widgetValue})=> {
   return (

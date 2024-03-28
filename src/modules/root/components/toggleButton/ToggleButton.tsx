@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
+import { setIsAdmin } from '../../../context/action';
+import { InventoryContext } from '../../../context/context';
 import './ToggleButton.scss'; 
 
 const ToggleButton: React.FC = () => {
+  const {state, dispatch} = useContext(InventoryContext)
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
 
   const toggleMode = () => {
-    setIsDarkMode(prevMode => !prevMode);
+    dispatch(setIsAdmin(!state.isAdmin))
   };
 
   return (
     <div className='toggle'>
       <p>admin</p>
-     <div className={`toggle-container ${isDarkMode ? 'toggle-container-dark' : 'toggle-container-light'}`} onClick={toggleMode}>
+     <div className={`toggle-container ${state.isAdmin ? 'toggle-container-light' : 'toggle-container-dark'}`} onClick={toggleMode}>
       <div className="toggle-button"></div>
     </div>
     <p>user</p>
