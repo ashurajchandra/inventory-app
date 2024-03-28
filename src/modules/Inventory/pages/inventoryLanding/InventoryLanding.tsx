@@ -1,4 +1,4 @@
-import {useEffect, useContext } from "react";
+import {useEffect, useContext, useState } from "react";
 import Widget from "../../components/common/widget/Widget";
 import "./InventoryLanding.scss";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -38,6 +38,8 @@ const Inventory: React.FC = () => {
 
     getData();
   }, []);
+
+  const uniqueCategory = new Set(inventoryData.map((item)=>item.category))
   const totalProduct = inventoryData.filter((item)=>!item.isDisabled).length;
   const totalStoreValue = inventoryData.reduce((acc,currentValue)=> {
     const storeValue= currentValue.isDisabled? 0 : parseInt(currentValue.value.replace('$','')) 
@@ -52,12 +54,6 @@ const Inventory: React.FC = () => {
     acc = acc+quantity
     return acc
   } ,0)
-
-
-
-
-
-  const uniqueCategory = new Set(inventoryData.map((item)=>item.category))
   const widgetData = [{icon:ShoppingCartIcon,title:'Total Product', value:totalProduct},{icon:CurrencyExchangeIcon,title:'Total Store value',value:`$ ${totalStoreValue}`},
           {icon:ProductionQuantityLimitsIcon, title:'Out of stock', value:outOfStock},{icon:CategoryIcon, title:'No of category', value:uniqueCategory.size}]
 
