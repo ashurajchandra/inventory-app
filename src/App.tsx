@@ -1,4 +1,5 @@
 import React, {useReducer} from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
 import './App.scss';
 import Inventory from './modules/Inventory/pages/inventoryLanding/InventoryLanding';
 import Header from './modules/root/components/header/Header';
@@ -10,7 +11,7 @@ function App() {
     <InventoryContext.Provider value = {{state, dispatch}}>
     <div className="container">
       <Header/>
-      <Inventory/>
+      <Inventory/> 
     </div>
     </InventoryContext.Provider>
   );

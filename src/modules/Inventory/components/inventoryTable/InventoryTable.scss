@@ -10,6 +10,9 @@
   }
   &-action {
     &-items {
+      &-opacity{
+        opacity: 0.4;
+      }
       &-edit {
         color: green;
       }

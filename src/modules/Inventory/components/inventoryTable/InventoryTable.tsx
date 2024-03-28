@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Tooltip from '@mui/material/Tooltip';
 import {
   Table,
   TableBody,
@@ -192,6 +195,7 @@ const InventoryTable: React.FC = () => {
   const handleSaveChanges = () => {
     handleEditSubmit();
     handleClosePopover();
+    toast.success("Data updated")
   };
 
   const handleCancelChanges = () => {
@@ -268,7 +272,7 @@ const InventoryTable: React.FC = () => {
           </TableHead>
           <TableBody>
             {inventoryData.map((data, index) => (
-              <StyledTableRow key={index}>
+              <StyledTableRow key={index} style={{opacity:data.isDisabled?'0.4':'1'}}>
                 <TableCell
                   sx={{ color: "var(--text-primary-color)", border: "none" }}>
                   {data.name}
@@ -293,43 +297,50 @@ const InventoryTable: React.FC = () => {
                   sx={{ color: "var(--text-primary-color)", border: "none" }}
                   className='table-container-action'>
                   <div className='table-container-action-items'>
+                  <Tooltip title={state.isAdmin?"edit":'need admin permission to edit'}>
                     <EditIcon
                       id={`edit-button-${index}`}
                       onClick={() => handleEdit(data, index)}
                       className={
                         state.isAdmin && !data.isDisabled
                           ? "table-container-action-items-edit"
-                          : ""
+                          : "table-container-action-items-opacity"
                       }
                     />
+                    </Tooltip>
                     {data.isDisabled ? (
+                      <Tooltip title={state.isAdmin?"enable":'need admin permission to enable'}>
                       <VisibilityOffIcon
                         onClick={() => handleDisable(data, index)}
                         className={
                           state.isAdmin
                             ? "table-container-action-items-visible"
-                            : ""
+                            : "table-container-action-items-opacity"
                         }
                       />
+                      </Tooltip>
                     ) : (
+                      <Tooltip title={state.isAdmin?"disable":'need admin permission to disable'}>
                       <VisibilityIcon
                         onClick={() => handleDisable(data, index)}
                         className={
                           state.isAdmin
                             ? "table-container-action-items-visible"
-                            : ""
+                            : "table-container-action-items-opacity"
                         }
                       />
+                      </Tooltip>
                     )}
-
+                    <Tooltip title={state.isAdmin?"delete":"need admin permission to delete"}>
                     <DeleteIcon
                       onClick={() => handleDelete(data, index)}
                       className={
                         state.isAdmin
                           ? "table-container-action-items-delete"
-                          : ""
+                          : "table-container-action-items-opacity"
                       }
                     />
+                    </Tooltip>
                   </div>
                 </TableCell>
               </StyledTableRow>
@@ -425,6 +436,7 @@ const InventoryTable: React.FC = () => {
           </Grid>
         </Grid>
       </Popover>
+      <ToastContainer />
     </>
   );
 };

@@ -9,7 +9,7 @@ import InventoryTable from "../../components/inventoryTable/InventoryTable";
 import { getInventoryData } from "../../services/apis";
 import { InventoryData } from "../../utils/data-utils";
 import { InventoryContext } from "../../../context/context";
-import { setInventoryData, setWidgetData } from "../../../context/action";
+import { setInventoryData, setIsLoading, setWidgetData } from "../../../context/action";
 
 const INVENTORY_HEADER = "Inventory stats";
 
@@ -18,7 +18,9 @@ const Inventory: React.FC = () => {
   useEffect(() => {
     const getData = async () => {
       try {
+        dispatch(setIsLoading(true))
         const resp = await getInventoryData();
+        dispatch(setIsLoading(false))
         if (resp !== undefined && resp.data.length > 0) {
           let widgetData = {
             outOfStock: 0,
@@ -47,6 +49,7 @@ const Inventory: React.FC = () => {
           dispatch(setInventoryData(resp.data));
         }
       } catch (err) {
+        dispatch(setIsLoading(false))
         console.log("err in getting data", err);
       }
     };
