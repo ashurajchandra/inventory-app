@@ -14,7 +14,7 @@ import { setInventoryData, setIsLoading, setWidgetData } from "../../../context/
 const INVENTORY_HEADER = "Inventory stats";
 
 const Inventory: React.FC = () => {
-  const { state, dispatch } = useContext(InventoryContext);
+  const { state:{inventoryData}, dispatch } = useContext(InventoryContext);
   useEffect(() => {
     const getData = async () => {
       try {
@@ -22,31 +22,13 @@ const Inventory: React.FC = () => {
         const resp = await getInventoryData();
         dispatch(setIsLoading(false))
         if (resp !== undefined && resp.data.length > 0) {
-          let widgetData = {
-            outOfStock: 0,
-            numberOfCategory: 0,
-            totalProduct: 0,
-            totalStoreValue: 0,
-            categories: [] as string[],
-          };
-
-          let categories = new Set();
-
-          resp.data.forEach((product: InventoryData) => {
-            if (product.quantity === 0) {
-              widgetData.outOfStock++;
+           const inventoryData = resp.data.map((item:InventoryData)=>{
+            return{
+              ...item,
+              isDisabled:false
             }
-            categories.add(product.category);
-            widgetData.categories.push(product.category);
-
-            widgetData.totalProduct++;
-            widgetData.totalStoreValue += parseInt(
-              product.value.replace("$", "")
-            );
-          });
-          widgetData.numberOfCategory = categories.size;
-          dispatch(setWidgetData(widgetData));
-          dispatch(setInventoryData(resp.data));
+           })
+          dispatch(setInventoryData(inventoryData));
         }
       } catch (err) {
         dispatch(setIsLoading(false))
@@ -56,31 +38,43 @@ const Inventory: React.FC = () => {
 
     getData();
   }, []);
+  const totalProduct = inventoryData.filter((item)=>!item.isDisabled).length;
+  const totalStoreValue = inventoryData.reduce((acc,currentValue)=> {
+    const storeValue= currentValue.isDisabled? 0 : parseInt(currentValue.value.replace('$','')) 
+    acc = acc+storeValue
+    return acc
+  },0)
+  const outOfStock = inventoryData.reduce((acc,currentValue)=> {
+    if(currentValue.isDisabled){
+      return acc
+    }
+    const quantity =  currentValue.quantity>0?0:1
+    acc = acc+quantity
+    return acc
+  } ,0)
+
+
+
+
+
+  const uniqueCategory = new Set(inventoryData.map((item)=>item.category))
+  const widgetData = [{icon:ShoppingCartIcon,title:'Total Product', value:totalProduct},{icon:CurrencyExchangeIcon,title:'Total Store value',value:`$ ${totalStoreValue}`},
+          {icon:ProductionQuantityLimitsIcon, title:'Out of stock', value:outOfStock},{icon:CategoryIcon, title:'No of category', value:uniqueCategory.size}]
 
   return (
     <div className='inventory-container'>
       <p>{INVENTORY_HEADER}</p>
       <div className='inventory-container-widget'>
-        <Widget
-          WidgetIcon={ShoppingCartIcon}
-          widgetTitle={"Total Product"}
-          widgetValue={state.widgetData.totalProduct}
-        />
-        <Widget
-          WidgetIcon={CurrencyExchangeIcon}
-          widgetTitle={"Total Store value"}
-          widgetValue={`$ ${state.widgetData.totalStoreValue}`}
-        />
-        <Widget
-          WidgetIcon={ProductionQuantityLimitsIcon}
-          widgetTitle={"Out of stock"}
-          widgetValue={state.widgetData.outOfStock}
-        />
-        <Widget
-          WidgetIcon={CategoryIcon}
-          widgetTitle={"No of category"}
-          widgetValue={state.widgetData.numberOfCategory}
-        />
+        {
+          widgetData.map(({icon,title,value},index)=>(
+            <Widget
+            key={index}
+            WidgetIcon={icon}
+            widgetTitle={title}
+            widgetValue={value}
+          /> 
+          ))
+        }
       </div>
       <div className='inventory-container-table'>
         <InventoryTable />

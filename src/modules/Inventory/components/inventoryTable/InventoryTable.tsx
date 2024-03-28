@@ -23,7 +23,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import { HeadCells, headCells } from "../../utils/data-utils";
 import "./InventoryTable.scss";
 import { InventoryContext } from "../../../context/context";
-import { setWidgetData } from "../../../context/action";
+import { setInventoryData, setWidgetData } from "../../../context/action";
 
 const StyledTableRow = styled(TableRow)({
   "&:last-child td": {
@@ -49,13 +49,10 @@ interface InventoryDataEnhanced {
   isDisabled: boolean;
 }
 const InventoryTable: React.FC = () => {
-  const { state, dispatch } = useContext(InventoryContext);
+  const { state:{inventoryData,isAdmin}, dispatch } = useContext(InventoryContext);
   const [columnHeader, setColumnHeader] = useState<HeadCells[]>(headCells);
-  const [inventoryData, setInventoryData] = useState<InventoryDataEnhanced[]>(
-    []
-  );
   const [editedItemIndex, setEditedItemIndex] = useState<number>(-1);
-
+  const [saveDisabled, setSaveDisabled] = useState<boolean>(false);
   const [editPopoverAnchor, setEditPopoverAnchor] =
     useState<HTMLElement | null>(null);
 
@@ -63,18 +60,8 @@ const InventoryTable: React.FC = () => {
     null
   );
 
-  useEffect(() => {
-    const data = state.inventoryData.map((item) => {
-      return {
-        ...item,
-        isDisabled: false,
-      };
-    });
-    setInventoryData(data);
-  }, [state.inventoryData]);
-
   const handleDisable = (item: InventoryDataEnhanced, index: number) => {
-    if (!state.isAdmin) {
+    if (!isAdmin) {
       return;
     }
 
@@ -88,60 +75,10 @@ const InventoryTable: React.FC = () => {
       }
       return currentData;
     });
-    setInventoryData(updatedData);
-
-    const currentDisabledItemIndex = inventoryData.findIndex(
-      (data) => data.name === item.name
-    );
-    if (currentDisabledItemIndex !== -1) {
-      const currentItem = inventoryData[currentDisabledItemIndex];
-
-      const widgetData = state.widgetData;
-      let categoryCount = -1;
-      widgetData.categories.forEach((categoryItem) => {
-        if (categoryItem === currentItem.category) {
-          categoryCount++;
-        }
-      });
-      if (!currentItem.isDisabled) {
-        const updatedWidget = {
-          ...widgetData,
-          totalProduct: widgetData.totalProduct - 1,
-          totalStoreValue:
-            widgetData.totalStoreValue -
-            parseInt(currentItem.value.replace("$", "")),
-          outOfStock:
-            currentItem.quantity === 0
-              ? widgetData.outOfStock - 1
-              : widgetData.outOfStock,
-          numberOfCategory:
-            categoryCount > 1
-              ? widgetData.numberOfCategory
-              : widgetData.numberOfCategory - 1,
-        };
-        dispatch(setWidgetData(updatedWidget));
-      } else {
-        const updatedWidget = {
-          ...widgetData,
-          totalProduct: widgetData.totalProduct + 1,
-          totalStoreValue:
-            widgetData.totalStoreValue +
-            parseInt(currentItem.value.replace("$", "")),
-          outOfStock:
-            currentItem.quantity === 0
-              ? widgetData.outOfStock + 1
-              : widgetData.outOfStock,
-          numberOfCategory:
-            categoryCount > 1
-              ? widgetData.numberOfCategory
-              : widgetData.numberOfCategory + 1,
-        };
-        dispatch(setWidgetData(updatedWidget));
-      }
-    }
+    dispatch(setInventoryData(updatedData));
   };
   const handleEdit = (item: InventoryDataEnhanced, index: number) => {
-    if (!state.isAdmin) {
+    if (!isAdmin) {
       return;
     }
     if (item.isDisabled) {
@@ -160,33 +97,7 @@ const InventoryTable: React.FC = () => {
         }
         return item;
       });
-
-      const currentWidgetData = state.widgetData;
-      let categoryCount = -1;
-      currentWidgetData.categories.forEach((item) => {
-        if (item === editedItem.category) {
-          categoryCount++;
-        }
-      });
-      const currentEditedItem = inventoryData[editedItemIndex];
-      const updatedValue =
-        parseInt(editedItem.value.replace("$", "")) -
-        parseInt(currentEditedItem.value.replace("$", ""));
-      const updatedWidget = {
-        ...state.widgetData,
-        totalProduct: currentWidgetData.totalProduct,
-        totalStoreValue: currentWidgetData.totalStoreValue + updatedValue,
-        numberOfCategory:
-          categoryCount > 0
-            ? currentWidgetData.numberOfCategory
-            : currentWidgetData.numberOfCategory + 1,
-        outOfStock:
-          editedItem.quantity === 0
-            ? currentWidgetData.outOfStock - 1
-            : currentWidgetData.outOfStock,
-      };
-      dispatch(setWidgetData(updatedWidget));
-      setInventoryData(updatedData);
+      dispatch(setInventoryData(updatedData));
       setEditPopoverAnchor(null);
       setEditedItem(null);
     }
@@ -205,42 +116,12 @@ const InventoryTable: React.FC = () => {
     setEditPopoverAnchor(null);
   };
 
-  const updateWidget = (data: InventoryDataEnhanced) => {
-    const currentWidgetData = state.widgetData;
-    let categoryCount = -1;
-    currentWidgetData.categories.forEach((item) => {
-      if (item === data.category) {
-        categoryCount++;
-      }
-    });
-    const updatedWidget = {
-      ...state.widgetData,
-      totalProduct: currentWidgetData.totalProduct - 1,
-      totalStoreValue:
-        currentWidgetData.totalStoreValue -
-        parseInt(data.value.replace("$", "")),
-      numberOfCategory:
-        categoryCount > 1
-          ? currentWidgetData.numberOfCategory
-          : currentWidgetData.numberOfCategory - 1,
-      outOfStock:
-        data.quantity === 0
-          ? currentWidgetData.outOfStock - 1
-          : currentWidgetData.outOfStock,
-    };
-    dispatch(setWidgetData(updatedWidget));
-  };
-
   const handleDelete = (data: InventoryDataEnhanced, index: number) => {
-    if (!state.isAdmin) {
+    if (!isAdmin) {
       return;
     }
-    const deleteItem = inventoryData[index];
-    if (!data.isDisabled) {
-      updateWidget(data);
-    }
     const filterItems = inventoryData.filter((item) => item.name !== data.name);
-    setInventoryData(filterItems);
+    dispatch(setInventoryData(filterItems));
   };
 
   const handleEditInputChange = (
@@ -297,45 +178,45 @@ const InventoryTable: React.FC = () => {
                   sx={{ color: "var(--text-primary-color)", border: "none" }}
                   className='table-container-action'>
                   <div className='table-container-action-items'>
-                  <Tooltip title={state.isAdmin?"edit":'need admin permission to edit'}>
+                  <Tooltip title={isAdmin?"edit":'need admin permission to edit'}>
                     <EditIcon
                       id={`edit-button-${index}`}
                       onClick={() => handleEdit(data, index)}
                       className={
-                        state.isAdmin && !data.isDisabled
+                        isAdmin && !data.isDisabled
                           ? "table-container-action-items-edit"
                           : "table-container-action-items-opacity"
                       }
                     />
                     </Tooltip>
                     {data.isDisabled ? (
-                      <Tooltip title={state.isAdmin?"enable":'need admin permission to enable'}>
+                      <Tooltip title={isAdmin?"enable":'need admin permission to enable'}>
                       <VisibilityOffIcon
                         onClick={() => handleDisable(data, index)}
                         className={
-                          state.isAdmin
+                          isAdmin
                             ? "table-container-action-items-visible"
                             : "table-container-action-items-opacity"
                         }
                       />
                       </Tooltip>
                     ) : (
-                      <Tooltip title={state.isAdmin?"disable":'need admin permission to disable'}>
+                      <Tooltip title={isAdmin?"disable":'need admin permission to disable'}>
                       <VisibilityIcon
                         onClick={() => handleDisable(data, index)}
                         className={
-                          state.isAdmin
+                          isAdmin
                             ? "table-container-action-items-visible"
                             : "table-container-action-items-opacity"
                         }
                       />
                       </Tooltip>
                     )}
-                    <Tooltip title={state.isAdmin?"delete":"need admin permission to delete"}>
+                    <Tooltip title={isAdmin?"delete":"need admin permission to delete"}>
                     <DeleteIcon
                       onClick={() => handleDelete(data, index)}
                       className={
-                        state.isAdmin
+                        isAdmin
                           ? "table-container-action-items-delete"
                           : "table-container-action-items-opacity"
                       }
@@ -422,7 +303,8 @@ const InventoryTable: React.FC = () => {
               variant='contained'
               color='primary'
               onClick={handleSaveChanges}
-              sx={{ backgroundColor: "#848d97" }}>
+              sx={{ backgroundColor: "#848d97" }}
+              disabled={saveDisabled}> 
               Save
             </Button>
             <Button
