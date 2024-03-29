@@ -9,7 +9,7 @@ import InventoryTable from "../../components/inventoryTable/InventoryTable";
 import { getInventoryData } from "../../services/apis";
 import { InventoryData } from "../../utils/data-utils";
 import { InventoryContext } from "../../../context/context";
-import { setInventoryData, setIsLoading, setWidgetData } from "../../../context/action";
+import { setInventoryData, setIsLoading} from "../../../context/action";
 
 const INVENTORY_HEADER = "Inventory stats";
 
@@ -39,7 +39,12 @@ const Inventory: React.FC = () => {
     getData();
   }, []);
 
-  const uniqueCategory = new Set(inventoryData.map((item)=>item.category))
+  const uniqueCategory = new Set()
+  inventoryData.forEach((item)=>{
+    if(!item.isDisabled){
+      uniqueCategory.add(item.category)
+    }
+  })
   const totalProduct = inventoryData.filter((item)=>!item.isDisabled).length;
   const totalStoreValue = inventoryData.reduce((acc,currentValue)=> {
     const storeValue= currentValue.isDisabled? 0 : parseInt(currentValue.value.replace('$','')) 

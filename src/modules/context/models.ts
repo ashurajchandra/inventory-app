@@ -10,15 +10,3 @@ export interface InventoryData {
   value: string;
   isDisabled:boolean
 }
-
-export interface CategoryItem{
-  category:string,
-  count:number
-}
-export interface WidgetData {
-  categories:Map<string, number>
-  totalProduct: number;
-  totalStoreValue: number;
-  outOfStock: number;
-  numberOfCategory: number;
-}

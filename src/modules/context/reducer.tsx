@@ -1,15 +1,13 @@
-import{Action,WidgetData,InventoryData} from './models';
+import{Action,InventoryData} from './models';
 import{
     ISADMIN,
     INVENTORYDATA,
-    WIDGETDATA,
     ISLOADING
 } from './action';
 
 
 export interface InventoryState{
     isAdmin:boolean;
-    // widgetData:WidgetData;
     inventoryData:InventoryData[];
     isLoading:boolean;
 }
@@ -17,12 +15,6 @@ export interface InventoryState{
 
 export const initialInventoryState: InventoryState = {
     isAdmin:true,
-    // widgetData:{ totalProduct: 0,
-    //     totalStoreValue: 0,
-    //     outOfStock: 0,
-    //     numberOfCategory: 0,
-    //     categories:{} as any
-    // },
     inventoryData: [],
     isLoading:false
 }
@@ -42,12 +34,6 @@ export const inventoryReducer = (state:InventoryState = initialInventoryState,ac
                 inventoryData:action.payload
             }
         }
-        // case WIDGETDATA:{
-        //     return {
-        //         ...state,
-        //         widgetData:action.payload
-        //     }
-        // }
         case ISLOADING:{
             return {
                 ...state,

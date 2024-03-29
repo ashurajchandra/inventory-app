@@ -23,7 +23,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import { HeadCells, headCells } from "../../utils/data-utils";
 import "./InventoryTable.scss";
 import { InventoryContext } from "../../../context/context";
-import { setInventoryData, setWidgetData } from "../../../context/action";
+import { setInventoryData} from "../../../context/action";
 
 const StyledTableRow = styled(TableRow)({
   "&:last-child td": {
