@@ -19,6 +19,10 @@ This repository contains an inventory management application consisting of two s
 
 - Whenever a product is deleted or edited, the widget data automatically gets updated accordingly.
 
+### video explanation of project
+- https://www.loom.com/share/a911384588654a94bce10d0f5659fede?sid=246ec7b4-74d4-4bb8-911e-4f443b815cac
+
+
 ## Usage
 
 1. Clone the repository:
